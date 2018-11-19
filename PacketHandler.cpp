@@ -86,7 +86,7 @@ struct sniff_tcp {
 // global variables
 char*       g_save_file_name = NULL;
 char*       g_filter_content = NULL;
-uint32_t    g_max_file_size = 0;
+long        g_max_file_size = 0;
 FILE*       g_sniffer_file = stderr;
 CLock       g_file_lock;    // lock for multiple thread to write the same file;
 

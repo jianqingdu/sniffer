@@ -65,7 +65,7 @@ int main(int argc, const char * argv[])
     int max_file_size = 8*1024;  // MB
     bool daemon = false;
     
-    while ((ch = getopt(argc, (char *const *)argv, "hdi:f:m:r:c")) != -1) {
+    while ((ch = getopt(argc, (char *const *)argv, "hdi:f:m:r:c:")) != -1) {
         switch (ch) {
             case 'h':
                 print_usage(progname);
@@ -94,8 +94,8 @@ int main(int argc, const char * argv[])
         }
     }
     
-    printf("device=%s, save_file=%s, max_file_size=%d, filter=%s\n",
-           device_name, save_file, max_file_size, filter_rule);
+    printf("device=%s, save_file=%s, max_file_size=%d, content=%s, filter=%s\n",
+           device_name, save_file, max_file_size, content, filter_rule);
     
     if (daemon) {
         daemonize();

@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <string>
 #include <stdarg.h>
+#include <set>
 #include "PacketHandler.h"
 #include "Util.h"
 
@@ -87,6 +88,8 @@ struct sniff_tcp {
 char*       g_save_file_name = NULL;
 char*       g_filter_content = NULL;
 long        g_max_file_size = 0;
+bool        g_only_record_ip = false;
+set<string> g_ips;
 FILE*       g_sniffer_file = stderr;
 CLock       g_file_lock;    // lock for multiple thread to write the same file;
 
@@ -189,11 +192,12 @@ static void print_payload_packet(const u_char* payload_packet, int payload_len)
 }
 
 
-int CPacketHandler::Init(char* save_file, uint32_t max_file_size, char* content)
+int CPacketHandler::Init(char* save_file, uint32_t max_file_size, char* content, bool only_record_ip)
 {
     g_save_file_name = save_file;
     g_max_file_size = max_file_size;
     g_filter_content = content;
+    g_only_record_ip = only_record_ip;
     
     if (g_save_file_name) {
         g_sniffer_file = fopen(save_file, "w");
@@ -276,6 +280,26 @@ void CPacketHandler::ReceivePacket(u_char* arg, const struct pcap_pkthdr* ph, co
     char src_ip[16], dst_ip[16];
     long2ip(ip->ip_src, src_ip, 16);
     long2ip(ip->ip_dst, dst_ip, 16);
+    
+    if (g_only_record_ip) {
+        int old_ip_size = (int)g_ips.size();
+        g_ips.insert(src_ip);
+        g_ips.insert(dst_ip);
+        
+        if (old_ip_size != (int)g_ips.size()) {
+            FILE* file = fopen(g_save_file_name, "w");
+            
+            if (file != NULL) {
+                for (set<string>::iterator it = g_ips.begin(); it != g_ips.end(); it++) {
+                    fprintf(file, "%s\n", it->c_str());
+                }
+                
+                fclose(file);
+            }
+        }
+        
+        return;
+    }
     
     int payload_offset = ip_offset + size_ip + size_tcp;
     int payload_len = ph->caplen - payload_offset;

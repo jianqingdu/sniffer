@@ -39,7 +39,7 @@ int CSnifferThread::StartSniffer(const char* device_name, const char* filter_rul
     m_device_name = device_name;
     
     if (pcap_lookupnet(device_name, &net, &mask, errbuf) == -1) {
-        //fprintf(stderr, "can't get netmask for device %s: %s\n", device_name, errbuf);
+        fprintf(stderr, "can't get netmask for device %s: %s\n", device_name, errbuf);
         return 1;
     }
     

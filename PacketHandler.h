@@ -16,7 +16,7 @@ public:
     CPacketHandler() {}
     virtual ~CPacketHandler() {}
     
-    static int Init(char* save_file, uint32_t max_file_size, char* content);
+    static int Init(char* save_file, uint32_t max_file_size, char* content, bool only_record_ip);
     static void ReceivePacket(u_char* arg, const struct pcap_pkthdr* ph, const u_char* packet);
 };
 

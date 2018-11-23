@@ -21,8 +21,14 @@ using namespace std;
 void print_usage(const char* progname)
 {
     printf("Usage: \n");
-    printf("  %s -h\n", progname);
-    printf("  %s [-d] [-i device_name] [-f save_file] [-m max_file_size(MB)] [-c content] -r filter_rule\n", progname);
+    printf("  %s -h                 print help info\n", progname);
+    printf("  %s [-d]               run as a deamon\n"
+           "     [-i device_name]   sniffer on network interface, any for all interface\n"
+           "     [-f save_file]     save packat in file\n"
+           "     [-m max_file_size] max file size in MB\n"
+           "     [-c content]       only record packet that has this content\n"
+           "     [-a]               only record difference ip address\n"
+           "     -r filter_rule     filter rule, the same as tcpdump\n", progname);
 }
 
 int get_all_device(list<string>& device_list)
@@ -64,14 +70,19 @@ int main(int argc, const char * argv[])
     int ch = 0;
     int max_file_size = 8*1024;  // MB
     bool daemon = false;
+    bool only_record_ip = false;
     
-    while ((ch = getopt(argc, (char *const *)argv, "hdi:f:m:r:c:")) != -1) {
+    while ((ch = getopt(argc, (char *const *)argv, "ahdi:f:m:r:c:")) != -1) {
         switch (ch) {
             case 'h':
                 print_usage(progname);
                 return 0;
             case 'd':
                 daemon = true;
+                break;
+            case 'a':
+                only_record_ip = true;
+                break;
             case 'i':
                 device_name = optarg;
                 break;
@@ -101,7 +112,7 @@ int main(int argc, const char * argv[])
         daemonize();
     }
     
-    if (CPacketHandler::Init(save_file, max_file_size, content)) {
+    if (CPacketHandler::Init(save_file, max_file_size, content, only_record_ip)) {
         printf("init failed\n");
         return -1;
     }
